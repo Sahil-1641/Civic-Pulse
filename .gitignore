@@ -1,0 +1,34 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyc
+
+# Virtual Environment
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+
+# Logs
+*.log
+
+# SQLite database
+db.sqlite3
+
+# SQLite temporary files
+*.sqlite3-journal
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Media uploads (user photos)
+media/
+
+# Static files build
+staticfiles/

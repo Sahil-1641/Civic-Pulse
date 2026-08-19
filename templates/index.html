@@ -1,0 +1,597 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicPulse — Real-Time Crowdsourced Civic Issue Platform</title>
+    
+    <!-- Meta SEO -->
+    <meta name="description" content="Report and track civic infrastructure issues in 30 seconds with photos, auto-GPS, and real-time municipal transparency.">
+    <meta name="theme-color" content="#08070d">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <!-- Ambient Glowing Background Elements -->
+    <div class="ambient-glow-wrapper" aria-hidden="true">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+        <div class="ambient-orb orb-3"></div>
+    </div>
+
+    <!-- Floating Glass Navbar (Ledgion Inspired) -->
+    <nav class="glass-nav">
+        <a href="/" class="brand-badge">
+            <div class="brand-icon-pulse">
+                <i class="fas fa-satellite-dish"></i>
+            </div>
+            <div class="brand-title">
+                Civic<span>Pulse</span>
+            </div>
+        </a>
+
+        <ul class="nav-links">
+            <li>
+                <a href="#overview" class="nav-link-item active">
+                    Overview
+                    <span class="nav-dot"></span>
+                </a>
+            </li>
+            <li>
+                <a href="#how" class="nav-link-item">
+                    How It Works
+                    <span class="nav-dot"></span>
+                </a>
+            </li>
+            <li>
+                <a href="#feed" class="nav-link-item">
+                    Live Feed
+                    <span class="nav-dot"></span>
+                </a>
+            </li>
+            <li>
+                <a href="#map" class="nav-link-item">
+                    Live Map
+                    <span class="nav-dot"></span>
+                </a>
+            </li>
+            <li>
+                <a href="#brand-showcase" class="nav-link-item">
+                    Community
+                    <span class="nav-dot"></span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="nav-actions">
+            <!-- Dark/Light Theme Toggle -->
+            <button id="theme-toggle-btn" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">
+                <i id="theme-icon" class="fas fa-moon"></i>
+            </button>
+
+            <!-- Quick Report CTA Button -->
+            <button class="btn-ledgion-primary open-report-modal-btn">
+                <i class="fas fa-camera"></i>
+                <span>Report Issue</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section id="overview" class="hero-section">
+        <div class="hero-pill-badge">
+            <span class="pulse-dot"></span>
+            <span>Live Civic Network &bull; {{ total_issues }} Active & Resolved Issues</span>
+        </div>
+
+        <h1 class="hero-title">
+            Crowdsourcing Civic Action.<br>
+            <span class="text-gradient-violet">
+                Fixing Cities in Real-Time.
+            </span>
+        </h1>
+
+        <p class="hero-subtext">
+            Spot a problem? Report <span id="hero-typewriter-text" style="color: var(--neon-purple); font-weight: 700;"></span> in under 30 seconds with photo proof & GPS location. Track municipal resolution transparently.
+        </p>
+
+        <div class="hero-cta-group">
+            <button class="btn-ledgion-primary open-report-modal-btn" style="padding: 14px 32px; font-size: 16px;">
+                <i class="fas fa-bullhorn"></i>
+                <span>Report an Issue Now</span>
+            </button>
+
+            <a href="#map" class="btn-ledgion-secondary" style="padding: 14px 28px; font-size: 16px;">
+                <i class="fas fa-map-location-dot"></i>
+                <span>Explore City Map</span>
+            </a>
+        </div>
+
+        <!-- 3D Perspective Command Deck (Ledgion Signature 3D Window) -->
+        <div class="perspective-container">
+            <div class="deck-showcase-window">
+                <div class="window-header-mac">
+                    <div class="mac-dots">
+                        <span class="mac-dot dot-red"></span>
+                        <span class="mac-dot dot-yellow"></span>
+                        <span class="mac-dot dot-green"></span>
+                    </div>
+                    <div class="window-url-bar">
+                        <i class="fas fa-shield-halved" style="color: var(--neon-purple);"></i>
+                        civicpulse.org/command-center/live
+                    </div>
+                    <div class="window-badge-live">
+                        <i class="fas fa-circle" style="font-size: 8px;"></i>
+                        DISPATCH ACTIVE
+                    </div>
+                </div>
+
+                <div class="deck-body">
+                    <!-- Real-Time Metrics Deck -->
+                    <div class="deck-metrics-grid">
+                        <div class="metric-tile">
+                            <div class="metric-tile-header">
+                                <span class="metric-label">Total Reports</span>
+                                <div class="metric-icon-wrap icon-purple">
+                                    <i class="fas fa-flag"></i>
+                                </div>
+                            </div>
+                            <div class="metric-value-row">
+                                <span class="metric-value" data-counter-target="{{ total_issues }}">{{ total_issues }}</span>
+                                <span class="metric-tag-change tag-up">+14% this wk</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-tile">
+                            <div class="metric-tile-header">
+                                <span class="metric-label">Resolved Issues</span>
+                                <div class="metric-icon-wrap icon-emerald">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            <div class="metric-value-row">
+                                <span class="metric-value" data-counter-target="{{ resolved_count }}">{{ resolved_count }}</span>
+                                <span class="metric-tag-change tag-up" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">84% SLA</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-tile">
+                            <div class="metric-tile-header">
+                                <span class="metric-label">In Progress</span>
+                                <div class="metric-icon-wrap icon-cyan">
+                                    <i class="fas fa-person-digging"></i>
+                                </div>
+                            </div>
+                            <div class="metric-value-row">
+                                <span class="metric-value" data-counter-target="{{ in_progress_count }}">{{ in_progress_count }}</span>
+                                <span class="metric-tag-change" style="background: rgba(6, 182, 212, 0.2); color: #38bdf8;">Field Crews</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-tile">
+                            <div class="metric-tile-header">
+                                <span class="metric-label">Citizen Upvotes</span>
+                                <div class="metric-icon-wrap icon-amber">
+                                    <i class="fas fa-thumbs-up"></i>
+                                </div>
+                            </div>
+                            <div class="metric-value-row">
+                                <span class="metric-value" data-counter-target="{{ total_upvotes }}">{{ total_upvotes }}</span>
+                                <span class="metric-tag-change tag-up">Verified Voice</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Split Panel: Live Stream Ticker + City Pulse Snippet -->
+                    <div class="deck-split-view">
+                        <div class="deck-feed-panel">
+                            <div class="panel-heading">
+                                <span><i class="fas fa-bolt" style="color: var(--neon-purple); margin-right: 6px;"></i> High Priority Triage Queue</span>
+                                <span style="font-size: 11px; color: var(--text-muted);">Auto-Ranked by Upvotes</span>
+                            </div>
+
+                            <div class="deck-feed-list">
+                                {% for issue in all_issues|slice:":4" %}
+                                <div class="deck-feed-item">
+                                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                                        <span class="status-badge status-{{ issue.status }}" style="font-size: 9px; padding: 2px 8px;">
+                                            {{ issue.get_status_display }}
+                                        </span>
+                                        <span class="feed-item-title">{{ issue.title }}</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                        <span style="font-size: 11px; font-weight: 700; color: var(--neon-purple);">
+                                            <i class="fas fa-heart"></i> {{ issue.upvotes }}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="deck-chart-panel">
+                            <div class="panel-heading">
+                                <span><i class="fas fa-chart-pie" style="color: var(--neon-purple); margin-right: 6px;"></i> Category Distribution</span>
+                                <span style="font-size: 11px; color: #34d399;">Live SLA</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 6px;">
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                        <span>🛣️ Roads & Potholes</span>
+                                        <span style="font-weight: 700; color: var(--neon-purple);">42%</span>
+                                    </div>
+                                    <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden;">
+                                        <div style="width: 42%; height: 100%; background: var(--grad-violet-blue); border-radius: 99px;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                        <span>💧 Water & Drainage</span>
+                                        <span style="font-weight: 700; color: #38bdf8;">28%</span>
+                                    </div>
+                                    <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden;">
+                                        <div style="width: 28%; height: 100%; background: #06b6d4; border-radius: 99px;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                        <span>💡 Street Lighting</span>
+                                        <span style="font-weight: 700; color: #fbbf24;">18%</span>
+                                    </div>
+                                    <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden;">
+                                        <div style="width: 18%; height: 100%; background: #f59e0b; border-radius: 99px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- macOS Floating Dock (Ledgion Style) -->
+                    <div class="macos-floating-dock">
+                        <button class="dock-btn active" data-dock-action="overview">
+                            <i class="fas fa-house"></i>
+                            <span class="dock-tooltip">Overview</span>
+                        </button>
+                        <button class="dock-btn" data-dock-action="feed">
+                            <i class="fas fa-list-check"></i>
+                            <span class="dock-tooltip">Live Feed</span>
+                        </button>
+                        <button class="dock-btn" data-dock-action="map">
+                            <i class="fas fa-map-location-dot"></i>
+                            <span class="dock-tooltip">Interactive Map</span>
+                        </button>
+                        <button class="dock-btn" data-dock-action="report">
+                            <i class="fas fa-plus"></i>
+                            <span class="dock-tooltip">New Report</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3-STEP HOW IT WORKS -->
+    <section id="how" class="section-wrapper">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <span class="section-tagline">
+                <i class="fas fa-wand-magic-sparkles"></i> 3-Step Process
+            </span>
+            <h2 class="section-heading">How CivicPulse Resolves Local Issues</h2>
+            <p class="section-desc" style="margin: 0 auto;">
+                Empowering every citizen with real-time reporting tools and complete municipal accountability.
+            </p>
+        </div>
+
+        <div class="process-grid">
+            <div class="process-card">
+                <div class="step-num-badge">01</div>
+                <h3 class="step-title">Snap & Auto-Locate</h3>
+                <p class="step-body">
+                    Take a photo of the infrastructure defect. Our system auto-detects precise GPS coordinates and categorizes the issue in under 30 seconds.
+                </p>
+            </div>
+
+            <div class="process-card">
+                <div class="step-num-badge">02</div>
+                <h3 class="step-title">Community Upvoting</h3>
+                <p class="step-body">
+                    Neighbors and local residents upvote issues affecting their daily commute, automatically escalating critical problems to the top of municipal queues.
+                </p>
+            </div>
+
+            <div class="process-card">
+                <div class="step-num-badge">03</div>
+                <h3 class="step-title">Track to Resolution</h3>
+                <p class="step-body">
+                    Receive live progression updates (Reported &rarr; Acknowledged &rarr; In Progress &rarr; Resolved) with verified photo proof from field crews.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- LIVE ISSUE FEED & FILTER SYSTEM -->
+    <section id="feed" class="section-wrapper">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px; margin-bottom: 30px;">
+            <div>
+                <span class="section-tagline">
+                    <i class="fas fa-tower-broadcast"></i> Real-Time Feed
+                </span>
+                <h2 class="section-heading" style="margin-bottom: 8px;">Reported Civic Issues</h2>
+                <p style="color: var(--text-secondary); font-size: 15px;">Browse community submissions, upvote critical defects, and monitor work progress.</p>
+            </div>
+
+            <button class="btn-ledgion-primary open-report-modal-btn">
+                <i class="fas fa-plus"></i>
+                <span>Report New Issue</span>
+            </button>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="feed-controls-bar">
+            <div class="filter-pills-row">
+                <a href="/?category=all#feed" class="filter-pill {% if active_category == 'all' or not active_category %}active{% endif %}">
+                    All Categories
+                </a>
+                <a href="/?category=road#feed" class="filter-pill {% if active_category == 'road' %}active{% endif %}">
+                    🛣️ Roads
+                </a>
+                <a href="/?category=water#feed" class="filter-pill {% if active_category == 'water' %}active{% endif %}">
+                    💧 Water
+                </a>
+                <a href="/?category=lighting#feed" class="filter-pill {% if active_category == 'lighting' %}active{% endif %}">
+                    💡 Lighting
+                </a>
+                <a href="/?category=garbage#feed" class="filter-pill {% if active_category == 'garbage' %}active{% endif %}">
+                    🗑️ Sanitation
+                </a>
+                <a href="/?category=drainage#feed" class="filter-pill {% if active_category == 'drainage' %}active{% endif %}">
+                    🚰 Drainage
+                </a>
+            </div>
+
+            <form method="GET" action="/#feed" class="search-input-wrap">
+                <i class="fas fa-magnifying-glass" style="color: var(--text-muted); font-size: 13px;"></i>
+                <input type="text" name="q" placeholder="Search landmark or issue..." value="{{ search_query }}">
+            </form>
+        </div>
+
+        <!-- Issue Cards Grid -->
+        <div class="issues-cards-grid">
+            {% for issue in issues %}
+            <div class="issue-card">
+                <div>
+                    <div class="card-top-row">
+                        <span class="ticket-tag">{{ issue.ticket_id }}</span>
+                        <span class="status-badge status-{{ issue.status }}">
+                            <i class="fas fa-circle" style="font-size: 7px;"></i>
+                            {{ issue.get_status_display }}
+                        </span>
+                    </div>
+
+                    <h3 class="issue-card-title" style="margin-top: 14px; margin-bottom: 8px;">
+                        {{ issue.title }}
+                    </h3>
+
+                    <p class="issue-card-desc">
+                        {{ issue.description }}
+                    </p>
+                </div>
+
+                <div>
+                    {% if issue.resolution_notes %}
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #34d399;">
+                        <strong><i class="fas fa-circle-check"></i> Municipal Note:</strong> {{ issue.resolution_notes }}
+                    </div>
+                    {% endif %}
+
+                    <div class="issue-location-row" style="margin-bottom: 12px;">
+                        <i class="fas fa-location-dot" style="color: var(--neon-purple);"></i>
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ issue.address }}</span>
+                    </div>
+
+                    <div class="issue-footer-row">
+                        <button class="upvote-btn" data-issue-id="{{ issue.id }}" title="Support this issue">
+                            <i class="far fa-thumbs-up"></i>
+                            <span>Support (<span class="upvote-count">{{ issue.upvotes }}</span>)</span>
+                        </button>
+
+                        <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+                            {{ issue.created_at|date:"M d, Y" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: var(--bg-surface-1); border-radius: var(--radius-xl); border: 1px solid var(--border-subtle);">
+                <i class="fas fa-clipboard-check" style="font-size: 40px; color: var(--neon-purple); margin-bottom: 14px;"></i>
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--text-primary);">No Issues Found</h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Try clearing search filters or report a new issue in this area.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- INTERACTIVE MAP VIEW -->
+    <section id="map" class="section-wrapper">
+        <div style="text-align: center; margin-bottom: 36px;">
+            <span class="section-tagline">
+                <i class="fas fa-map"></i> Real-Time Geospatial Map
+            </span>
+            <h2 class="section-heading">City Infrastructure Defect Map</h2>
+            <p class="section-desc" style="margin: 0 auto;">
+                Explore color-coded complaint hotspots with real-time dispatch status pins across the municipal zone.
+            </p>
+        </div>
+
+        <div class="map-frame-box">
+            <div id="map-container"></div>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+         USER SPECIAL REQUEST:
+         Interactive CIVICPULSE Spaced Character Hover Feature in Purple/Violet
+         ========================================================================== -->
+    <section id="brand-showcase" class="brand-interactive-section">
+        <div class="ribbon-subtitle">
+            <i class="fas fa-sparkles" style="color: var(--neon-purple);"></i> Built For Modern Cities &bull; Hover To Energize
+        </div>
+
+        <!-- The Spaced Glowing Letter Cards (C I V I C P U L S E) -->
+        <div class="civicpulse-char-ribbon" title="CivicPulse Interactive Ribbon">
+            <div class="char-box"><span class="char-glyph">C</span></div>
+            <div class="char-box"><span class="char-glyph">I</span></div>
+            <div class="char-box"><span class="char-glyph">V</span></div>
+            <div class="char-box"><span class="char-glyph">I</span></div>
+            <div class="char-box"><span class="char-glyph">C</span></div>
+            <div class="char-box"><span class="char-glyph">P</span></div>
+            <div class="char-box"><span class="char-glyph">U</span></div>
+            <div class="char-box"><span class="char-glyph">L</span></div>
+            <div class="char-box"><span class="char-glyph">S</span></div>
+            <div class="char-box"><span class="char-glyph">E</span></div>
+        </div>
+
+        <p style="margin-top: 24px; font-size: 14px; color: var(--text-muted); font-weight: 500;">
+            A Transparent Citizen-Government Collaboration Protocol
+        </p>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer-main">
+        <div class="footer-content">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="brand-icon-pulse" style="width: 32px; height: 32px; font-size: 14px;">
+                    <i class="fas fa-satellite-dish"></i>
+                </div>
+                <span style="font-weight: 800; font-size: 18px; color: var(--text-primary);">
+                    Civic<span style="color: var(--neon-purple);">Pulse</span>
+                </span>
+            </div>
+
+            <div class="footer-credits">
+                &copy; 2026 CivicPulse Platform. Engineered for Transparent Civic Governance.
+            </div>
+
+            <div style="display: flex; gap: 14px; font-size: 18px; color: var(--text-secondary);">
+                <a href="#" style="color: inherit; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--neon-purple)'" onmouseout="this.style.color=''"><i class="fab fa-github"></i></a>
+                <a href="#" style="color: inherit; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--neon-purple)'" onmouseout="this.style.color=''"><i class="fab fa-x-twitter"></i></a>
+                <a href="#" style="color: inherit; transition: var(--transition-smooth);" onmouseover="this.style.color='var(--neon-purple)'" onmouseout="this.style.color=''"><i class="fab fa-discord"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- QUICK REPORT MODAL -->
+    <div id="report-modal-overlay" class="modal-overlay">
+        <div class="modal-window">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title">Report Civic Issue</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Submit in under 30 seconds with auto-GPS & photo</p>
+                </div>
+                <button class="modal-close-btn close-report-modal-btn" title="Close">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="quick-report-form" method="POST" action="/report/" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label class="form-label">Issue Headline *</label>
+                    <input type="text" name="title" class="form-control" placeholder="e.g. Deep Pothole Near Metro Gate 2" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Category *</label>
+                    <div class="category-pill-grid">
+                        <label class="category-radio-label">
+                            <input type="radio" name="category" value="road" checked>
+                            <i class="fas fa-road" style="color: #c084fc; font-size: 16px;"></i>
+                            <span>Road / Pothole</span>
+                        </label>
+                        <label class="category-radio-label">
+                            <input type="radio" name="category" value="water">
+                            <i class="fas fa-water" style="color: #38bdf8; font-size: 16px;"></i>
+                            <span>Water Logging</span>
+                        </label>
+                        <label class="category-radio-label">
+                            <input type="radio" name="category" value="lighting">
+                            <i class="fas fa-lightbulb" style="color: #fbbf24; font-size: 16px;"></i>
+                            <span>Streetlight</span>
+                        </label>
+                        <label class="category-radio-label">
+                            <input type="radio" name="category" value="garbage">
+                            <i class="fas fa-trash-can" style="color: #34d399; font-size: 16px;"></i>
+                            <span>Garbage Dump</span>
+                        </label>
+                        <label class="category-radio-label">
+                            <input type="radio" name="category" value="drainage">
+                            <i class="fas fa-faucet-drip" style="color: #818cf8; font-size: 16px;"></i>
+                            <span>Drainage</span>
+                        </label>
+                        <label class="category-radio-label">
+                            <input type="radio" name="category" value="other">
+                            <i class="fas fa-shapes" style="color: #f472b6; font-size: 16px;"></i>
+                            <span>Other</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Location / Landmark *</label>
+                    <input type="text" id="report-address" name="address" class="form-control" placeholder="Street Name, Landmark, Sector" required>
+                    <button type="button" id="gps-detect-btn" class="gps-detect-btn">
+                        <i class="fas fa-crosshairs"></i> Auto-Detect My Current GPS
+                    </button>
+                    <input type="hidden" id="report-lat" name="latitude" value="28.6139">
+                    <input type="hidden" id="report-lng" name="longitude" value="77.2090">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Urgency Level</label>
+                    <select name="urgency" class="form-control">
+                        <option value="low">Low (Minor inconvenience)</option>
+                        <option value="medium" selected>Medium (Standard civic issue)</option>
+                        <option value="high">High (Traffic block / Safety hazard)</option>
+                        <option value="critical">Critical (Immediate danger to life)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="3" placeholder="Provide details to assist municipal field teams..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Upload Photo Evidence (Optional)</label>
+                    <input type="file" name="photo" accept="image/*" class="form-control" style="padding: 8px;">
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn-ledgion-secondary close-report-modal-btn" style="flex: 1; justify-content: center;">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-ledgion-primary" style="flex: 2; justify-content: center;">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Publish Issue</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pass Django Map JSON to Leaflet Client Script -->
+    <script>
+        window.civicMapData = {{ map_data_json|safe }};
+    </script>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
